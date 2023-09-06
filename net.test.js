@@ -1,4 +1,10 @@
-const { clickElement, putText, getText, clickFreeSeat, clickNextDate } = require("./lib/commands.js");
+const {
+  clickElement,
+  putText,
+  getText,
+  clickFreeSeat,
+  clickNextDate,
+} = require("./lib/commands.js");
 // const { generateName } = require("./lib/util.js");
 
 let page;
@@ -18,21 +24,41 @@ describe("Бронирование билетов", () => {
     await page.goto("http://qamid.tmweb.ru/client/index.php");
   });
 
-  test("Happy path: Бронирование билета проходит успешно'", async () => {
-
+  test("Happy path: Бронирование билета проходит успешно(несколько мест)", async () => {
     await clickNextDate(page, 1);
     await clickElement(page, "a.movie-seances__time");
-    await clickFreeSeat(page)
-    await clickFreeSeat(page)
-    await clickFreeSeat(page)
+    await clickFreeSeat(page);
+    await clickFreeSeat(page);
+    await clickFreeSeat(page);
+    await clickElement(page, ".acceptin-button");
+    const actual = await getText(page, ".acceptin-button");
+    expect(actual).toContain("Получить код бронирования");
+  });
 
+  test("Happy path: Бронирование билета проходит успешно(одно мест)", async () => {
+    await clickNextDate(page, 1);
+    await clickElement(page, "a.movie-seances__time");
+    await clickFreeSeat(page);
+    await clickElement(page, ".acceptin-button");
+    const actual = await getText(page, ".acceptin-button");
+    expect(actual).toContain("Получить код бронирования");
+  });
+
+  test("Sad path: Бронирование билета не проходит если место занато", async () => {
+    await clickNextDate(page, 1);
+    await clickElement(page, "a.movie-seances__time");
+    await clickFreeSeat(page);
+    await clickElement(page, ".acceptin-button");
+    const actual = await getText(page, ".acceptin-button");
+    expect(actual).toContain("Получить код бронирования");
+  });
     // await clickElement(page, "header a + a");
     // const title2 = await page.title();
     // console.log("Page title: " + title2);
     // const pageList = await browser.newPage();
     // await pageList.goto("https://netology.ru/navigation");
     // await pageList.waitForSelector("h1");
-  });
+ 
 
   // test("The first link text 'Медиа Нетологии'", async () => {
   //   const actual = await getText(page, "header a + a");
@@ -58,5 +84,3 @@ describe("Бронирование билетов", () => {
 //   await page.goto("https://netology.ru/?modal=sign_in");
 //   await putText(page, 'input[type="email"]', generateName(5));
 // });
-
-
